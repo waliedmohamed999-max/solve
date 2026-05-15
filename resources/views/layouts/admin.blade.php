@@ -32,21 +32,26 @@
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
-            background: radial-gradient(circle at top left, rgba(99,102,241,0.08), transparent 32%), radial-gradient(circle at bottom right, rgba(56,189,248,0.08), transparent 24%), #f8fafc;
+            background: #f8fafc;
         }
         .grid-pattern {
             background-image: linear-gradient(rgba(99,102,241,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.05) 1px, transparent 1px);
             background-size: 28px 28px;
         }
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 </head>
-<body class="font-sans text-slate-800">
-    <div class="min-h-screen p-4 lg:p-6" x-data="{ mobileNav: false, quickOpen: false }">
-        <div class="mx-auto flex max-w-[1800px] gap-4 lg:gap-6">
+<body class="font-sans max-w-full overflow-x-hidden text-slate-800">
+    <div class="min-h-screen p-4 transition lg:p-6" x-data="{ mobileNav: false, quickOpen: false, darkMode: false }" :class="darkMode ? 'bg-slate-950 text-slate-100' : ''">
+        <div class="mx-auto max-w-[1800px]">
             @include('admin.partials.sidebar', ['activeRoute' => $activeRoute ?? 'admin.dashboard'])
-            <main class="min-w-0 flex-1">
+            <main class="min-w-0 lg:mr-[254px]">
                 @include('admin.partials.topbar')
-                @include('admin.partials.insight-banner')
+                @if ($showInsight ?? false)
+                    @include('admin.partials.insight-banner')
+                @endif
                 @yield('admin-content')
             </main>
         </div>

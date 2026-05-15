@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'billing' => [
+        'provider' => env('BILLING_PROVIDER', 'solve-pay'),
+        'webhook_secret' => env('BILLING_WEBHOOK_SECRET', 'local-billing-secret'),
+    ],
+
 ];

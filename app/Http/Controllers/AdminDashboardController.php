@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Support\SiteContent;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\View\View;
 
 class AdminDashboardController extends Controller
@@ -351,14 +352,7 @@ class AdminDashboardController extends Controller
             'pageTitle' => 'إدارة محتوى الموقع',
             'pageDescription' => 'تحكم بالنصوص، الصور، الأقسام والباقات المعروضة في الصفحة الرئيسية من مكان واحد.',
             'content' => SiteContent::get(),
-            'availableImages' => [
-                'منصة_متاجر.png',
-                'ما يُميز متاجر.png',
-                'الدفع.png',
-                'الشحن.png',
-                'خدمات الشُركاء.png',
-                'تطبيق_متاجر.png',
-            ],
+            'availableImages' => SiteContent::availableImages(),
             'toneOptions' => [
                 'bg-sky-500',
                 'bg-amber-300 text-slate-900',
@@ -372,9 +366,62 @@ class AdminDashboardController extends Controller
 
     public function updateSiteContent(Request $request): RedirectResponse
     {
-        SiteContent::put($request->except(['_token']));
+        $payload = array_replace_recursive(
+            SiteContent::get(),
+            $request->except([
+                '_token',
+                'hero_image_file',
+                'feature_image_files',
+                'app_image_file',
+            ]),
+        );
+
+        foreach (Arr::get($payload, 'catalogSections', []) as $sectionIndex => $section) {
+            foreach (Arr::get($section, 'items', []) as $itemIndex => $item) {
+                $payload['catalogSections'][$sectionIndex]['items'][$itemIndex]['features'] = $this->linesToArray(
+                    $item['features'] ?? [],
+                );
+            }
+        }
+
+        $payload['footer']['about_links'] = $this->linesToArray(Arr::get($payload, 'footer.about_links', []));
+        $payload['footer']['links'] = $this->linesToArray(Arr::get($payload, 'footer.links', []));
+
+        if ($request->hasFile('hero_image_file')) {
+            $payload['hero']['image'] = SiteContent::uploadImage($request->file('hero_image_file'), 'hero');
+        }
+
+        foreach ($request->file('feature_image_files', []) as $index => $file) {
+            if ($file) {
+                $payload['featureSections'][$index]['image'] = SiteContent::uploadImage($file, 'feature-section');
+            }
+        }
+
+        if ($request->hasFile('app_image_file')) {
+            $payload['appSection']['image'] = SiteContent::uploadImage($request->file('app_image_file'), 'app-section');
+        }
+
+        SiteContent::put($payload);
 
         return redirect()->route('admin.site-content')->with('status', 'تم حفظ محتوى الموقع وربط الصور بنجاح.');
+    }
+
+    private function linesToArray(array|string|null $value): array
+    {
+        if ($value === null) {
+            return [];
+        }
+
+        if (is_array($value)) {
+            return array_values(array_filter(array_map('trim', $value), fn ($item) => $item !== ''));
+        }
+
+        $lines = preg_split('/
+|
+|
+/', $value) ?: [];
+
+        return array_values(array_filter(array_map('trim', $lines), fn ($item) => $item !== ''));
     }
 
     private function renderSection(string $activeRoute, string $pageTitle, string $pageDescription, array $summaryCards, array $panels): View

@@ -23,14 +23,46 @@
     </section>
 @endif
 
-<form id="site-content-form" method="POST" action="{{ route('admin.site-content.update') }}" class="mt-6 space-y-6">
+<form id="site-content-form" method="POST" action="{{ route('admin.site-content.update') }}" enctype="multipart/form-data" class="mt-6 space-y-6">
     @csrf
 
     <section class="rounded-[32px] border border-white/70 bg-white p-6 shadow-card">
-        <h3 class="text-2xl font-extrabold text-slate-900">الصور المتاحة بالمشروع</h3>
-        <div class="mt-5 flex flex-wrap gap-3">
-            @foreach ($availableImages as $image)
-                <span class="rounded-full bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700">{{ $image }}</span>
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <h3 class="text-2xl font-extrabold text-slate-900">شركاء ومتاجر الشريط</h3>
+                <p class="mt-2 text-sm text-slate-500">ارفع لوجوهات حقيقية أو ضع مسار صورة موجودة. المقاس الأفضل مربع أو أفقي بخلفية شفافة.</p>
+            </div>
+            <input name="showcaseHeading" value="{{ $content['showcaseHeading'] }}" class="w-full max-w-sm rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm">
+        </div>
+        <div class="mt-6 grid gap-4 xl:grid-cols-3">
+            @foreach ($content['showcaseStores'] as $index => $store)
+                <div class="rounded-[28px] bg-slate-50 p-5">
+                    <div class="flex items-center gap-4">
+                        <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-brand-100 bg-white">
+                            @if (! empty($store['image']))
+                                <img src="{{ asset($store['image']) }}" alt="{{ $store['name'] }}" class="h-full w-full object-contain p-2">
+                            @else
+                                <span class="flex h-full w-full items-center justify-center {{ $store['tone'] ?? 'bg-brand-600' }} text-sm font-extrabold text-white">{{ $store['badge'] ?? '' }}</span>
+                            @endif
+                        </div>
+                        <input name="showcaseStores[{{ $index }}][name]" value="{{ $store['name'] }}" placeholder="اسم الشريك" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
+                    </div>
+                    <div class="mt-3 grid gap-3 md:grid-cols-2">
+                        <input name="showcaseStores[{{ $index }}][badge]" value="{{ $store['badge'] }}" placeholder="اختصار اللوجو" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
+                        <input name="showcaseStores[{{ $index }}][category]" value="{{ $store['category'] ?? '' }}" placeholder="التصنيف" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
+                        <input name="showcaseStores[{{ $index }}][metric]" value="{{ $store['metric'] ?? '' }}" placeholder="وصف صغير" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
+                        <input name="showcaseStores[{{ $index }}][url]" value="{{ $store['url'] ?? '#' }}" placeholder="رابط اختياري" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
+                    </div>
+                    <div class="mt-3 grid gap-3">
+                        <input name="showcaseStores[{{ $index }}][image]" value="{{ $store['image'] ?? '' }}" placeholder="مسار الصورة مثل storage/..." class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
+                        <input type="file" name="showcase_logo_files[{{ $index }}]" accept="image/png,image/jpeg,image/webp" class="rounded-2xl border border-dashed border-brand-200 bg-white px-4 py-3 text-sm text-slate-500">
+                        <select name="showcaseStores[{{ $index }}][tone]" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
+                            @foreach ($toneOptions as $tone)
+                                <option value="{{ $tone }}" @selected(($store['tone'] ?? '') === $tone)>{{ $tone }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
             @endforeach
         </div>
     </section>
@@ -61,23 +93,6 @@
         </div>
     </section>
 
-    <section class="rounded-[32px] border border-white/70 bg-white p-6 shadow-card">
-        <div class="flex items-center justify-between">
-            <h3 class="text-2xl font-extrabold text-slate-900">كروت الخدمات</h3>
-            <div class="grid w-full max-w-xl gap-3 md:grid-cols-2">
-                <input name="servicesHeading" value="{{ $content['servicesHeading'] }}" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm">
-                <input name="servicesSubheading" value="{{ $content['servicesSubheading'] }}" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm">
-            </div>
-        </div>
-        <div class="mt-6 grid gap-4 xl:grid-cols-4">
-            @foreach ($content['serviceCards'] as $index => $card)
-                <div class="rounded-[26px] bg-slate-50 p-4">
-                    <input name="serviceCards[{{ $index }}][title]" value="{{ $card['title'] }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" placeholder="عنوان الكارت">
-                    <input name="serviceCards[{{ $index }}][icon]" value="{{ $card['icon'] }}" class="mt-3 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" placeholder="الأيقونة">
-                </div>
-            @endforeach
-        </div>
-    </section>
 
     <section class="rounded-[32px] border border-white/70 bg-white p-6 shadow-card">
         <div class="flex items-center justify-between">
@@ -96,27 +111,6 @@
         </div>
     </section>
 
-    <section class="rounded-[32px] border border-white/70 bg-white p-6 shadow-card">
-        <div class="flex items-center justify-between">
-            <h3 class="text-2xl font-extrabold text-slate-900">أمثلة المتاجر</h3>
-            <input name="showcaseHeading" value="{{ $content['showcaseHeading'] }}" class="w-full max-w-sm rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm">
-        </div>
-        <div class="mt-6 grid gap-4 xl:grid-cols-2">
-            @foreach ($content['showcaseStores'] as $index => $store)
-                <div class="rounded-[28px] bg-slate-50 p-5">
-                    <input name="showcaseStores[{{ $index }}][name]" value="{{ $store['name'] }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
-                    <div class="mt-3 grid gap-3 md:grid-cols-2">
-                        <input name="showcaseStores[{{ $index }}][badge]" value="{{ $store['badge'] }}" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
-                        <select name="showcaseStores[{{ $index }}][tone]" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
-                            @foreach ($toneOptions as $tone)
-                                <option value="{{ $tone }}" @selected($store['tone'] === $tone)>{{ $tone }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </section>
 
     <section class="rounded-[32px] border border-white/70 bg-white p-6 shadow-card">
         <div class="flex items-center justify-between">

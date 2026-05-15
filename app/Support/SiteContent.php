@@ -2,35 +2,100 @@
 
 namespace App\Support;
 
+use App\Models\SiteContent as SiteContentModel;
+use App\Models\SiteMedia;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class SiteContent
 {
-    private const STORAGE_PATH = 'app/site-content.json';
+    private const KEY = 'home';
+    private const LEGACY_STORAGE_PATH = 'app/site-content.json';
 
     public static function get(): array
     {
         $defaults = self::defaults();
-        $path = storage_path(self::STORAGE_PATH);
 
-        if (! File::exists($path)) {
+        if (! self::contentTableExists()) {
             return $defaults;
         }
 
-        $decoded = json_decode(File::get($path), true);
+        $record = SiteContentModel::query()->where('key', self::KEY)->first();
 
-        if (! is_array($decoded)) {
-            return $defaults;
+        if ($record) {
+            return self::mergeWithDefaults($record->payload ?? [], $defaults);
         }
 
-        return self::mergeWithDefaults($decoded, $defaults);
+        $legacy = self::legacyContent();
+        $payload = self::mergeWithDefaults($legacy, $defaults);
+
+        SiteContentModel::query()->updateOrCreate(
+            ['key' => self::KEY],
+            ['payload' => $payload],
+        );
+
+        return $payload;
     }
 
     public static function put(array $content): void
     {
-        $path = storage_path(self::STORAGE_PATH);
-        File::ensureDirectoryExists(dirname($path));
-        File::put($path, json_encode(self::mergeWithDefaults($content, self::defaults()), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        if (! self::contentTableExists()) {
+            return;
+        }
+
+        SiteContentModel::query()->updateOrCreate(
+            ['key' => self::KEY],
+            ['payload' => self::mergeWithDefaults($content, self::defaults())],
+        );
+    }
+
+    public static function availableImages(): array
+    {
+                $bundled = [
+            ['path' => 'منصة_متاجر.png', 'label' => 'البنر الرئيسي'],
+            ['path' => 'ما يُميز متاجر.png', 'label' => 'قسم ما يميز Solve'],
+            ['path' => 'الدفع.png', 'label' => 'قسم الدفع'],
+            ['path' => 'الشحن.png', 'label' => 'قسم الشحن'],
+            ['path' => 'خدمات الشُركاء.png', 'label' => 'قسم خدمات الشركاء'],
+            ['path' => 'تطبيق_متاجر.png', 'label' => 'قسم تطبيق التاجر'],
+        ];
+
+        $uploaded = self::mediaTableExists()
+            ? SiteMedia::query()
+                ->latest()
+                ->get()
+                ->map(fn (SiteMedia $media) => [
+                    'path' => 'storage/' . $media->path,
+                    'label' => $media->original_name,
+                ])
+                ->all()
+            : [];
+
+        return array_merge($uploaded, $bundled);
+    }
+
+    public static function uploadImage(UploadedFile $file, string $purpose = 'site-content'): string
+    {
+        $safeName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+        $safeName = $safeName !== '' ? $safeName : 'image';
+        $filename = now()->format('YmdHis') . '-' . $safeName . '.' . $file->getClientOriginalExtension();
+        $storedPath = $file->storeAs('site-content', $filename, 'public');
+
+        if (self::mediaTableExists()) {
+            SiteMedia::query()->create([
+                'purpose' => $purpose,
+                'original_name' => $file->getClientOriginalName(),
+                'path' => $storedPath,
+                'disk' => 'public',
+                'mime_type' => $file->getClientMimeType(),
+                'size' => $file->getSize(),
+            ]);
+        }
+
+        return 'storage/' . $storedPath;
     }
 
     public static function defaults(): array
@@ -293,6 +358,19 @@ class SiteContent
         ];
     }
 
+    private static function legacyContent(): array
+    {
+        $path = storage_path(self::LEGACY_STORAGE_PATH);
+
+        if (! File::exists($path)) {
+            return [];
+        }
+
+        $decoded = json_decode(File::get($path), true);
+
+        return is_array($decoded) ? $decoded : [];
+    }
+
     private static function mergeWithDefaults(mixed $data, mixed $defaults): mixed
     {
         if (! is_array($defaults)) {
@@ -326,5 +404,26 @@ class SiteContent
         }
 
         return $merged;
+    }
+
+    public static function contentTableExists(): bool
+    {
+        return self::tableExists('site_contents');
+    }
+
+    private static function mediaTableExists(): bool
+    {
+        return self::tableExists('site_media');
+    }
+
+    private static function tableExists(string $table): bool
+    {
+        try {
+            DB::connection()->getPdo();
+
+            return Schema::hasTable($table);
+        } catch (\Throwable) {
+            return false;
+        }
     }
 }

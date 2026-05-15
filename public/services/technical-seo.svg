@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-labelledby="title">
+  <title id="title">Technical SEO illustration</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#effaff"/>
+      <stop offset="1" stop-color="#f1efff"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#4d51b4" flood-opacity=".15"/>
+    </filter>
+  </defs>
+  <rect width="640" height="400" rx="42" fill="url(#bg)"/>
+  <g filter="url(#shadow)">
+    <rect x="118" y="72" width="404" height="252" rx="32" fill="#fff"/>
+    <rect x="154" y="116" width="244" height="24" rx="12" fill="#27344f"/>
+    <rect x="154" y="164" width="188" height="16" rx="8" fill="#93a4c5"/>
+    <rect x="154" y="198" width="214" height="16" rx="8" fill="#c6d1ee"/>
+    <rect x="154" y="232" width="146" height="16" rx="8" fill="#c6d1ee"/>
+    <circle cx="438" cy="212" r="58" fill="#eef0ff"/>
+    <path d="M414 212l18 18 36-48" fill="none" stroke="#24c08b" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <path d="M486 270l48 48" stroke="#5b5fca" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="438" cy="212" r="74" fill="none" stroke="#5b5fca" stroke-width="16" opacity=".28"/>
+</svg>

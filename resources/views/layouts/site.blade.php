@@ -5,31 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Solve')</title>
     <link rel="icon" type="image/png" href="{{ asset('solve-logo.png') }}">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Tajawal', 'sans-serif'] },
-                    colors: {
-                        brand: {
-                            50: '#eef0ff', 100: '#e4e8ff', 200: '#cfd5ff', 300: '#afb7ff',
-                            400: '#8d92f8', 500: '#6b6fd6', 600: '#5b5fca', 700: '#4d51b4',
-                            800: '#45489a', 900: '#3f4180'
-                        }
-                    },
-                    boxShadow: {
-                        soft: '0 20px 60px rgba(91, 95, 202, 0.10)',
-                        card: '0 16px 45px rgba(15, 23, 42, 0.06)'
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
@@ -49,9 +28,12 @@
             filter: blur(8px);
             z-index: 0;
         }
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 </head>
-<body class="text-slate-700">
+<body class="text-slate-700 overflow-x-hidden max-w-full">
     @yield('content')
 </body>
 </html>

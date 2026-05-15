@@ -20,6 +20,8 @@ return [
 
     'default' => env('LOG_CHANNEL', 'stack'),
 
+    'slow_queries_channel' => env('SLOW_QUERY_LOG_CHANNEL', 'daily'),
+
     /*
     |--------------------------------------------------------------------------
     | Deprecations Log Channel

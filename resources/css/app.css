@@ -1,11 +1,59 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+@source "../views/**/*.blade.php";
+@source "../js/**/*.js";
+@source "../../app/**/*.php";
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-sans: "Tajawal", sans-serif;
+
+  --color-brand-50: #eef0ff;
+  --color-brand-100: #e4e8ff;
+  --color-brand-200: #cfd5ff;
+  --color-brand-300: #afb7ff;
+  --color-brand-400: #8d92f8;
+  --color-brand-500: #6b6fd6;
+  --color-brand-600: #5b5fca;
+  --color-brand-700: #4d51b4;
+  --color-brand-800: #45489a;
+  --color-brand-900: #3f4180;
+
+  --shadow-soft: 0 20px 60px rgba(91, 95, 202, 0.10);
+  --shadow-card: 0 16px 45px rgba(15, 23, 42, 0.06);
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  
+  scrollbar-width: none;  
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+[dir="rtl"] {
+  text-align: right;
+}
+
+.showcase-marquee {
+  animation: showcase-marquee 34s linear infinite;
+}
+
+.showcase-marquee:hover {
+  animation-play-state: paused;
+}
+
+@keyframes showcase-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .showcase-marquee {
+    animation: none;
+  }
 }
