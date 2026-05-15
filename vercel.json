@@ -2,8 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "framework": null,
-  "outputDirectory": "public",
-  "installCommand": "composer install --no-dev --optimize-autoloader && npm ci",
+  "outputDirectory": "dist",
+  "installCommand": "npm ci",
   "buildCommand": "npm run build",
   "functions": {
     "api/index.php": {
@@ -15,15 +15,15 @@
   "routes": [
     {
       "src": "/build/(.*)",
-      "dest": "/public/build/$1"
+      "dest": "/build/$1"
     },
     {
       "src": "/services/(.*)",
-      "dest": "/public/services/$1"
+      "dest": "/services/$1"
     },
     {
       "src": "/(.*\\.(?:css|js|mjs|map|png|jpg|jpeg|gif|webp|svg|ico|txt|xml|json|webmanifest|woff|woff2|ttf|eot))",
-      "dest": "/public/$1"
+      "dest": "/$1"
     },
     {
       "src": "/(.*)",
