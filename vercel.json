@@ -3,7 +3,7 @@
   "version": 2,
   "framework": null,
   "outputDirectory": "dist",
-  "installCommand": "npm ci",
+  "installCommand": "sh scripts/vercel-install.sh",
   "buildCommand": "npm run build",
   "functions": {
     "api/index.php": {
