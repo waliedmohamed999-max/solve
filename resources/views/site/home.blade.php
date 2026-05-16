@@ -18,32 +18,43 @@
         }
     }"
 >
-    <header class="mx-auto flex max-w-7xl items-center justify-between px-6 py-8 lg:px-10">
+    @php
+        $heroImage = (string) ($hero['image'] ?? 'منصة_متاجر.png');
+        $heroImageName = strtolower($heroImage);
+
+        if ($heroImage === '' || str_contains($heroImageName, 'solve-logo')) {
+            $heroImage = 'منصة_متاجر.png';
+        }
+    @endphp
+
+    <header class="sticky top-0 z-30 mx-auto mt-3 flex max-w-7xl items-center justify-between rounded-[28px] border border-white/70 bg-white/85 px-5 py-4 shadow-card backdrop-blur lg:px-8">
         <div class="flex items-center gap-3">
-            <img src="{{ asset('solve-logo.png') }}" alt="Solve Logo" class="h-24 w-auto max-w-[240px] object-contain lg:h-32 lg:max-w-[320px]">
+            <img src="{{ asset('solve-logo.png') }}" alt="Solve Logo" class="h-12 w-auto max-w-[150px] rounded-2xl bg-white/80 p-1.5 object-contain shadow-sm lg:h-14 lg:max-w-[170px]">
         </div>
-        <nav class="hidden items-center gap-8 text-lg text-slate-600 md:flex">
+        <nav class="hidden items-center gap-6 text-base text-slate-600 md:flex">
             <a href="#pricing" class="transition hover:text-brand-600">الباقات</a>
             @foreach ($navLinks as $link)
                 <a href="{{ $link['href'] }}" class="transition hover:text-brand-600">{{ $link['label'] }}</a>
             @endforeach
-            <a href="{{ route('merchant.register') }}" class="rounded-full border border-brand-200 px-8 py-3 font-bold text-brand-600 transition hover:bg-brand-50">انضم كتاجر</a>
-            <a href="{{ $hero['primary_href'] }}" class="rounded-full bg-brand-600 px-8 py-3 text-white shadow-soft transition hover:bg-brand-700">{{ $hero['primary_label'] }}</a>
+            <a href="{{ route('merchant.register') }}" class="rounded-full border border-brand-200 px-6 py-2.5 font-bold text-brand-600 transition hover:bg-brand-50">انضم كتاجر</a>
+            <a href="{{ $hero['primary_href'] }}" class="rounded-full bg-brand-600 px-6 py-2.5 font-bold text-white shadow-soft transition hover:bg-brand-700">{{ $hero['primary_label'] }}</a>
         </nav>
     </header>
 
-    <section class="mx-auto grid max-w-7xl gap-10 px-6 pb-24 pt-10 lg:grid-cols-2 lg:px-10 lg:pb-32 lg:pt-16 lg:[direction:ltr]">
+    <section class="mx-auto grid max-w-7xl items-center gap-10 px-6 pb-20 pt-10 lg:grid-cols-2 lg:px-10 lg:pb-28 lg:pt-14 lg:[direction:ltr]">
         <div class="order-1 flex items-center justify-center lg:order-1">
-            <img src="{{ asset($hero['image']) }}" alt="{{ $hero['title'] }}" class="w-full max-w-2xl drop-shadow-[0_35px_60px_rgba(91,95,202,0.16)]">
+            <div class="relative w-full max-w-xl overflow-hidden rounded-[38px] border border-white/70 bg-white/75 p-6 shadow-card backdrop-blur">
+                <img src="{{ asset($heroImage) }}" alt="{{ $hero['title'] }}" class="mx-auto h-auto max-h-[440px] w-full object-contain drop-shadow-[0_28px_50px_rgba(91,95,202,0.14)] lg:max-h-[520px]" onerror="this.src='{{ asset('منصة_متاجر.png') }}'">
+            </div>
         </div>
         <div class="order-2 flex flex-col items-start justify-center text-right lg:order-2 lg:pr-8 lg:[direction:rtl]">
-            <h1 class="text-4xl font-extrabold leading-[1.8] text-brand-600 lg:text-6xl">{{ $hero['title'] }}</h1>
-            <p class="mt-6 max-w-2xl text-2xl leading-[2.1] text-slate-600 lg:text-3xl">{{ $hero['description'] }}</p>
-            <div class="mt-10 flex flex-wrap gap-4">
-                <a href="{{ $hero['primary_href'] }}" class="rounded-full bg-brand-600 px-12 py-4 text-xl font-bold text-white shadow-soft hover:bg-brand-700">{{ $hero['primary_label'] }}</a>
-                <a href="{{ route('merchant.register') }}" class="rounded-full bg-slate-950 px-12 py-4 text-xl font-bold text-white shadow-soft hover:bg-slate-800">ابدأ مجاناً</a>
-                <a href="{{ route('merchant.register') }}" class="rounded-full border border-slate-300 px-10 py-4 text-xl font-bold text-slate-700">جرّب لوحة التحكم</a>
-                <a href="{{ $hero['secondary_href'] }}" class="rounded-full border border-brand-200 px-10 py-4 text-xl font-bold text-brand-600">{{ $hero['secondary_label'] }}</a>
+            <h1 class="text-3xl font-extrabold leading-[1.6] text-brand-600 lg:text-5xl">{{ $hero['title'] }}</h1>
+            <p class="mt-5 max-w-2xl text-lg leading-[2] text-slate-600 lg:text-2xl">{{ $hero['description'] }}</p>
+            <div class="mt-8 flex flex-wrap gap-3">
+                <a href="{{ $hero['primary_href'] }}" class="rounded-full bg-brand-600 px-8 py-3 text-base font-bold text-white shadow-soft hover:bg-brand-700 lg:text-lg">{{ $hero['primary_label'] }}</a>
+                <a href="{{ route('merchant.register') }}" class="rounded-full bg-slate-950 px-8 py-3 text-base font-bold text-white shadow-soft hover:bg-slate-800 lg:text-lg">ابدأ مجاناً</a>
+                <a href="{{ route('merchant.register') }}" class="rounded-full border border-slate-300 px-7 py-3 text-base font-bold text-slate-700 lg:text-lg">جرّب لوحة التحكم</a>
+                <a href="{{ $hero['secondary_href'] }}" class="rounded-full border border-brand-200 px-7 py-3 text-base font-bold text-brand-600 lg:text-lg">{{ $hero['secondary_label'] }}</a>
             </div>
         </div>
     </section>
