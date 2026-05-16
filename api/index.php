@@ -53,12 +53,20 @@ $setDefault = static function (string $key, string $value) use ($readEnv): void 
     $_SERVER[$key] = $value;
 };
 
+$forceEnv = static function (string $key, string $value): void {
+    putenv($key.'='.$value);
+    $_ENV[$key] = $value;
+    $_SERVER[$key] = $value;
+};
+
 $defaults = [
     'APP_NAME' => 'Solve',
     'APP_ENV' => 'production',
     'APP_DEBUG' => 'false',
     'APP_URL' => 'https://'.$host,
     'APP_STORAGE_PATH' => $storagePath,
+    'LARAVEL_STORAGE_PATH' => $storagePath,
+    'VIEW_COMPILED_PATH' => $storagePath.'/framework/views',
     'LOG_CHANNEL' => 'stderr',
     'LOG_STACK' => 'stderr',
     'SLOW_QUERY_LOG_CHANNEL' => 'stderr',
@@ -77,8 +85,22 @@ foreach ($defaults as $key => $value) {
     $setDefault($key, $value);
 }
 
-if ($readEnv('APP_KEY') === null) {
-    $setDefault('APP_KEY', 'base64:'.base64_encode(hash('sha256', 'solve-vercel-preview-key', true)));
+$hasValidAppKey = static function (?string $key): bool {
+    if ($key === null) {
+        return false;
+    }
+
+    if (str_starts_with($key, 'base64:')) {
+        $decoded = base64_decode(substr($key, 7), true);
+
+        return is_string($decoded) && strlen($decoded) === 32;
+    }
+
+    return strlen($key) >= 32;
+};
+
+if (! $hasValidAppKey($readEnv('APP_KEY'))) {
+    $forceEnv('APP_KEY', 'base64:'.base64_encode(hash('sha256', 'solve-vercel-preview-key', true)));
 }
 
 if ($readEnv('DB_CONNECTION') === null) {

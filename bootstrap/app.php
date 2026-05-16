@@ -70,7 +70,7 @@ $app = Application::configure(basePath: $basePath)
         });
     })->create();
 
-if ($storagePath = env('APP_STORAGE_PATH')) {
+if ($storagePath = env('LARAVEL_STORAGE_PATH') ?: env('APP_STORAGE_PATH')) {
     $app->useStoragePath($storagePath);
 }
 
