@@ -19,37 +19,47 @@ class SiteContent
     {
         $defaults = self::defaults();
 
-        if (! self::contentTableExists()) {
+        try {
+            if (! self::contentTableExists()) {
+                return $defaults;
+            }
+
+            $record = SiteContentModel::query()->where('key', self::KEY)->first();
+
+            if ($record) {
+                return self::mergeWithDefaults($record->payload ?? [], $defaults);
+            }
+
+            $legacy = self::legacyContent();
+            $payload = self::mergeWithDefaults($legacy, $defaults);
+
+            SiteContentModel::query()->updateOrCreate(
+                ['key' => self::KEY],
+                ['payload' => $payload],
+            );
+
+            return $payload;
+        } catch (\Throwable $exception) {
+            error_log('Solve site content fallback: '.$exception->getMessage());
+
             return $defaults;
         }
-
-        $record = SiteContentModel::query()->where('key', self::KEY)->first();
-
-        if ($record) {
-            return self::mergeWithDefaults($record->payload ?? [], $defaults);
-        }
-
-        $legacy = self::legacyContent();
-        $payload = self::mergeWithDefaults($legacy, $defaults);
-
-        SiteContentModel::query()->updateOrCreate(
-            ['key' => self::KEY],
-            ['payload' => $payload],
-        );
-
-        return $payload;
     }
 
     public static function put(array $content): void
     {
-        if (! self::contentTableExists()) {
-            return;
-        }
+        try {
+            if (! self::contentTableExists()) {
+                return;
+            }
 
-        SiteContentModel::query()->updateOrCreate(
-            ['key' => self::KEY],
-            ['payload' => self::mergeWithDefaults($content, self::defaults())],
-        );
+            SiteContentModel::query()->updateOrCreate(
+                ['key' => self::KEY],
+                ['payload' => self::mergeWithDefaults($content, self::defaults())],
+            );
+        } catch (\Throwable $exception) {
+            error_log('Solve site content save skipped: '.$exception->getMessage());
+        }
     }
 
     public static function availableImages(): array
@@ -63,16 +73,22 @@ class SiteContent
             ['path' => 'تطبيق_متاجر.png', 'label' => 'قسم تطبيق التاجر'],
         ];
 
-        $uploaded = self::mediaTableExists()
-            ? SiteMedia::query()
-                ->latest()
-                ->get()
-                ->map(fn (SiteMedia $media) => [
-                    'path' => 'storage/' . $media->path,
-                    'label' => $media->original_name,
-                ])
-                ->all()
-            : [];
+        $uploaded = [];
+
+        try {
+            $uploaded = self::mediaTableExists()
+                ? SiteMedia::query()
+                    ->latest()
+                    ->get()
+                    ->map(fn (SiteMedia $media) => [
+                        'path' => 'storage/' . $media->path,
+                        'label' => $media->original_name,
+                    ])
+                    ->all()
+                : [];
+        } catch (\Throwable $exception) {
+            error_log('Solve site media fallback: '.$exception->getMessage());
+        }
 
         return array_merge($uploaded, $bundled);
     }
@@ -362,13 +378,17 @@ class SiteContent
     {
         $path = storage_path(self::LEGACY_STORAGE_PATH);
 
-        if (! File::exists($path)) {
+        try {
+            if (! File::exists($path)) {
+                return [];
+            }
+
+            $decoded = json_decode(File::get($path), true);
+
+            return is_array($decoded) ? $decoded : [];
+        } catch (\Throwable) {
             return [];
         }
-
-        $decoded = json_decode(File::get($path), true);
-
-        return is_array($decoded) ? $decoded : [];
     }
 
     private static function mergeWithDefaults(mixed $data, mixed $defaults): mixed
