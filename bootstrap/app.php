@@ -11,7 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
 use Symfony\Component\HttpFoundation\Response;
 
-return Application::configure(basePath: dirname(__DIR__))
+$basePath = dirname(__DIR__);
+
+$app = Application::configure(basePath: $basePath)
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
@@ -67,3 +69,9 @@ return Application::configure(basePath: dirname(__DIR__))
             return $response;
         });
     })->create();
+
+if ($storagePath = env('APP_STORAGE_PATH')) {
+    $app->useStoragePath($storagePath);
+}
+
+return $app;
