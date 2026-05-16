@@ -7,7 +7,7 @@ $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 $vercelRuntime = (function_exists('getenv') && getenv('VERCEL') !== false)
     || array_key_exists('VERCEL', $_ENV)
     || array_key_exists('VERCEL', $_SERVER)
-    || str_contains($host, 'vercel.app');
+    || strpos($host, 'vercel.app') !== false;
 
 $storagePath = $vercelRuntime ? '/tmp/solve-storage' : rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'solve-storage';
 
