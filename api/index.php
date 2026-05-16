@@ -3,6 +3,20 @@
 declare(strict_types=1);
 
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+
+if (in_array($requestPath, ['/up', '/health', '/api/health'], true)) {
+    header('Content-Type: application/json; charset=UTF-8');
+    header('Cache-Control: no-store');
+
+    echo json_encode([
+        'status' => 'ok',
+        'app' => 'Solve',
+        'runtime' => 'php',
+    ], JSON_UNESCAPED_SLASHES);
+
+    return;
+}
 
 $vercelRuntime = (function_exists('getenv') && getenv('VERCEL') !== false)
     || array_key_exists('VERCEL', $_ENV)
@@ -178,22 +192,6 @@ if ($shouldUseEphemeralSqlite) {
     $prepareSqlite();
 } elseif ($dbConnection === 'sqlite' && $readEnv('DB_DATABASE') === null) {
     $prepareSqlite();
-}
-
-$requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-
-if (in_array($requestPath, ['/up', '/health', '/api/health'], true)) {
-    header('Content-Type: application/json; charset=UTF-8');
-    header('Cache-Control: no-store');
-
-    echo json_encode([
-        'status' => 'ok',
-        'app' => 'Solve',
-        'runtime' => $isVercel ? 'vercel' : 'php',
-        'storage' => is_dir($storagePath) && is_writable($storagePath),
-    ], JSON_UNESCAPED_SLASHES);
-
-    return;
 }
 
 $renderLandingFallback = static function () use ($host): void {
