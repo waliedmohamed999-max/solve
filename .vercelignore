@@ -5,15 +5,8 @@
 .env.staging
 .env.testing
 .runtime/
-api/
-app/
-bootstrap/
-config/
-database/
-routes/
 node_modules/
 vendor/
-storage/
 storage/logs/
 storage/framework/cache/data/
 storage/framework/sessions/
